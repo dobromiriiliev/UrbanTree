@@ -39,7 +39,7 @@ public:
     Graph graph;
     map<int, MyAppNode> nodes;
     int node_count = 0;
-    geos::geom::GeometryFactory factory;
+    shared_ptr<geos::geom::GeometryFactory> factory;
 
     RoadHandler() : factory(geos::geom::GeometryFactory::create()) {}
 
@@ -110,32 +110,37 @@ vector<int> a_star_search(const Graph& graph, const map<int, MyAppNode>& nodes, 
     return {}; // Return empty path if no path is found
 }
 
-// Function for performing HTTP GET requests using CURL
-static size_t WriteCallback(void *contents, size_t size, size_t nmemb, string *userp) {
+// CURL callback function to collect received data
+size_t WriteCallback(void *contents, size_t size, size_t nmemb, string *userp) {
     userp->append((char*)contents, size * nmemb);
     return size * nmemb;
 }
 
-// Function to geocode an address using an external API
+// Geocode address using Google Maps API
 std::pair<double, double> geocodeAddress(const std::string& address) {
     CURL *curl;
     CURLcode res;
     string readBuffer;
     curl = curl_easy_init();
-    string api_url = "https://api.example.com/geocode/json?address=" + curl_easy_escape(curl, address.c_str(), address.length()) + "&key=YOUR_API_KEY";
+    if (curl) {
+        char *escapedAddress = curl_easy_escape(curl, address.c_str(), address.length());
+        if (escapedAddress) {
+            string api_url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + string(escapedAddress) + "&key=YOUR_API_KEY";
+            curl_free(escapedAddress);
 
-    if(curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, api_url.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-        res = curl_easy_perform(curl);
-        curl_easy_cleanup(curl);
+            curl_easy_setopt(curl, CURLOPT_URL, api_url.c_str());
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+            res = curl_easy_perform(curl);
+            curl_easy_cleanup(curl);
 
-        // Parse the JSON response
-        json response = json::parse(readBuffer);
-        double lat = response["results"][0]["geometry"]["location"]["lat"];
-        double lon = response["results"][0]["geometry"]["location"]["lng"];
-        return {lat, lon}; // Return parsed latitude and longitude
+            if (res == CURLE_OK) {
+                json response = json::parse(readBuffer);
+                double lat = response["results"][0]["geometry"]["location"]["lat"];
+                double lon = response["results"][0]["geometry"]["location"]["lng"];
+                return {lat, lon}; // Return parsed latitude and longitude
+            }
+        }
     }
 
     return {0.0, 0.0}; // Return default if CURL fails or no data
@@ -157,7 +162,7 @@ int findClosestNode(double lat, double lon, const map<int, MyAppNode>& nodes) {
 
 void read_osm_data(const string& filename, RoadHandler& handler) {
     io::Reader reader(filename);
-    apply(reader, handler);
+    osmium::apply(reader, handler);
     reader.close();
 }
 

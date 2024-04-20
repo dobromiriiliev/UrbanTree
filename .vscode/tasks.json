@@ -14,6 +14,7 @@
                 "-o",
                 "${workspaceFolder}/bin/main",
                 "/opt/homebrew/opt/geos",
+                "/opt/homebrew/Cellar",
                 "${workspaceFolder}/main.cpp",
                 "-L/Users/dobromiriliev/Documents/GitHub/UrbanTree/geos/lib",
                 "-lgeos",
