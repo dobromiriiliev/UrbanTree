@@ -8,21 +8,11 @@
 #include <osmium/io/any_input.hpp>
 #include <osmium/handler.hpp>
 #include <osmium/visitor.hpp>
-#include <geos/geom/Point.h>
-#include <geos/geom/Polygon.h>
-#include <geos/geom/GeometryFactory.h>
-#include <geos/util/GEOSException.h>
+#include <geos_c.h>  // Use GEOS C API
 
 using namespace std;
-using namespace geos::geom;
 using namespace osmium;
 using namespace osmium::handler;
-
-// Initialize a GeometryFactory
-const GeometryFactory* factory = GeometryFactory::getDefaultInstance();
-
-typedef const Point* GeosPoint;
-typedef Polygon* GeosPolygon;
 
 struct MyAppNode {
     int id;
@@ -60,26 +50,38 @@ public:
             for (size_t i = 0; i < nodes_in_way.size() - 1; ++i) {
                 int from = static_cast<int>(nodes_in_way[i]);
                 int to = static_cast<int>(nodes_in_way[i + 1]);
-                double cost = calculateDistance(createPoint(node_locations[from].lat(), node_locations[from].lon()),
-                                                createPoint(node_locations[to].lat(), node_locations[to].lon()));
+                double cost = calculateDistance(node_locations[from].lat(), node_locations[from].lon(),
+                                                node_locations[to].lat(), node_locations[to].lon());
                 graph[from].push_back({to, cost});
                 graph[to].push_back({from, cost}); // If bidirectional
             }
         }
     }
-};
 
-GeosPoint createPoint(double lat, double lon) {
-    auto point = factory->createPoint(Coordinate(lon, lat));
-    return point.release(); // Return a raw pointer and transfer ownership
-}
+    GEOSContextHandle_t geosContext = initGEOS_r();
 
-double calculateDistance(const GeosPoint p1, const GeosPoint p2) {
-    if (!p1 || !p2) {
-        throw invalid_argument("Points cannot be null");
+    GEOSGeom createPoint(double lat, double lon) {
+        GEOSCoordSequence* seq = GEOSCoordSeq_create_r(geosContext, 1, 2);
+        GEOSCoordSeq_setX_r(geosContext, seq, 0, lon);
+        GEOSCoordSeq_setY_r(geosContext, seq, 0, lat);
+        GEOSGeom point = GEOSGeom_createPoint_r(geosContext, seq);  // The GEOSGeom owns the sequence
+        return point;
     }
-    return p1->distance(p2);
-}
+
+    double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        GEOSGeom p1 = createPoint(lat1, lon1);
+        GEOSGeom p2 = createPoint(lat2, lon2);
+        double distance;
+        GEOSDistance_r(geosContext, p1, p2, &distance);
+        GEOSGeom_destroy_r(geosContext, p1);
+        GEOSGeom_destroy_r(geosContext, p2);
+        return distance;
+    }
+
+    ~RoadHandler() {
+        finishGEOS_r(geosContext);
+    }
+};
 
 double heuristic(const MyAppNode& a, const MyAppNode& b) {
     return hypot(a.lat - b.lat, a.lon - b.lon);
