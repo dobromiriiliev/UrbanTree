@@ -6,15 +6,18 @@
             "type": "shell",
             "command": "/usr/bin/g++",
             "args": [
+                "-std=c++17",
                 "-I/Users/dobromiriliev/Documents/GitHub/UrbanTree/libosmium/include",
                 "-I/Users/dobromiriliev/Documents/GitHub/UrbanTree/protozero/include",
                 "-I/Users/dobromiriliev/Documents/GitHub/UrbanTree/osmium-tool/include",
                 "-I/Users/dobromiriliev/Documents/GitHub/UrbanTree/geos/include",
                 "-o",
                 "${workspaceFolder}/bin/main",
+                "/opt/homebrew/opt/geos",
                 "${workspaceFolder}/main.cpp",
                 "-L/Users/dobromiriliev/Documents/GitHub/UrbanTree/geos/lib",
-                "-lgeos"
+                "-lgeos",
+                "-lstdc++fs" // This is needed for std::filesystem support in C++17
             ],
             "group": {
                 "kind": "build",

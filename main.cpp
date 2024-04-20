@@ -8,7 +8,8 @@
 #include <osmium/io/any_input.hpp>
 #include <osmium/handler.hpp>
 #include <osmium/visitor.hpp>
-#include <geos_c.h>  // Use GEOS C API
+#include <stddef.h>
+#include <geos_c.h>
 
 using namespace std;
 using namespace osmium;
@@ -32,6 +33,14 @@ public:
     Graph graph;
     map<int, MyAppNode> nodes;
     int node_count = 0;
+
+    RoadHandler() {
+        geosContext = initGEOS_r();
+    }
+
+    ~RoadHandler() {
+        finishGEOS_r(geosContext);
+    }
 
     void node(const osmium::Node& node) {
         node_locations[node.id()] = node.location();
@@ -58,7 +67,7 @@ public:
         }
     }
 
-    GEOSContextHandle_t geosContext = initGEOS_r();
+    GEOSContextHandle_t geosContext;
 
     GEOSGeom createPoint(double lat, double lon) {
         GEOSCoordSequence* seq = GEOSCoordSeq_create_r(geosContext, 1, 2);
@@ -76,10 +85,6 @@ public:
         GEOSGeom_destroy_r(geosContext, p1);
         GEOSGeom_destroy_r(geosContext, p2);
         return distance;
-    }
-
-    ~RoadHandler() {
-        finishGEOS_r(geosContext);
     }
 };
 
