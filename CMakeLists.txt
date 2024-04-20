@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)  # Do not use compiler-specific extensions
 
+# Include the protozero headers
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/protozero/include)
+
 # Define the executable
 add_executable(UrbanTree main.cpp)
 # Optionally add other source files if your project has more than one

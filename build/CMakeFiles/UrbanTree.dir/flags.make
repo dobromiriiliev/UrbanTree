@@ -4,7 +4,7 @@
 # compile CXX with /opt/homebrew/bin/aarch64-apple-darwin22-g++-13
 CXX_DEFINES = 
 
-CXX_INCLUDES = -isystem /opt/homebrew/include
+CXX_INCLUDES = -I/Users/dobromiriliev/Documents/GitHub/UrbanTree/protozero/include -isystem /opt/homebrew/include
 
 CXX_FLAGSarm64 = -g -std=c++17 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk -mmacosx-version-min=13.2
 

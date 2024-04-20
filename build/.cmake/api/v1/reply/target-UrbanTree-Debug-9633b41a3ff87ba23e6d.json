@@ -31,25 +31,25 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 10,
+				"line" : 13,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 19,
+				"line" : 22,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 28,
+				"line" : 31,
 				"parent" : 0
 			},
 			{
 				"command" : 4,
 				"file" : 0,
-				"line" : 26,
+				"line" : 29,
 				"parent" : 0
 			},
 			{
@@ -81,7 +81,13 @@
 			{
 				"command" : 5,
 				"file" : 0,
-				"line" : 18,
+				"line" : 10,
+				"parent" : 0
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 21,
 				"parent" : 0
 			}
 		]
@@ -99,6 +105,10 @@
 			[
 				{
 					"backtrace" : 10,
+					"path" : "/Users/dobromiriliev/Documents/GitHub/UrbanTree/protozero/include"
+				},
+				{
+					"backtrace" : 11,
 					"isSystem" : true,
 					"path" : "/opt/homebrew/include"
 				}
