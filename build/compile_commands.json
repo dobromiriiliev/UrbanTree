@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/Users/dobromiriliev/Documents/GitHub/UrbanTree/build",
+  "command": "/opt/homebrew/bin/aarch64-apple-darwin22-g++-13   -g -std=c++14 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk -mmacosx-version-min=13.2 -o CMakeFiles/UrbanTree.dir/main.cpp.o -c /Users/dobromiriliev/Documents/GitHub/UrbanTree/main.cpp",
+  "file": "/Users/dobromiriliev/Documents/GitHub/UrbanTree/main.cpp",
+  "output": "CMakeFiles/UrbanTree.dir/main.cpp.o"
+}
+]

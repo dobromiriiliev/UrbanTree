@@ -1,0 +1,3 @@
+/Users/dobromiriliev/Documents/GitHub/UrbanTree/build/CMakeFiles/UrbanTree.dir
+/Users/dobromiriliev/Documents/GitHub/UrbanTree/build/CMakeFiles/edit_cache.dir
+/Users/dobromiriliev/Documents/GitHub/UrbanTree/build/CMakeFiles/rebuild_cache.dir
