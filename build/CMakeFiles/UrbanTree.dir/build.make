@@ -92,6 +92,16 @@ UrbanTree_EXTERNAL_OBJECTS =
 
 UrbanTree: CMakeFiles/UrbanTree.dir/main.cpp.o
 UrbanTree: CMakeFiles/UrbanTree.dir/build.make
+UrbanTree: /opt/homebrew/lib/libprotobuf.dylib
+UrbanTree: /opt/homebrew/lib/libabsl_strings.2401.0.0.dylib
+UrbanTree: /opt/homebrew/lib/libabsl_strings_internal.2401.0.0.dylib
+UrbanTree: /opt/homebrew/lib/libabsl_string_view.2401.0.0.dylib
+UrbanTree: /opt/homebrew/lib/libabsl_base.2401.0.0.dylib
+UrbanTree: /opt/homebrew/lib/libabsl_spinlock_wait.2401.0.0.dylib
+UrbanTree: /opt/homebrew/lib/libabsl_int128.2401.0.0.dylib
+UrbanTree: /opt/homebrew/lib/libabsl_throw_delegate.2401.0.0.dylib
+UrbanTree: /opt/homebrew/lib/libabsl_raw_logging_internal.2401.0.0.dylib
+UrbanTree: /opt/homebrew/lib/libabsl_log_severity.2401.0.0.dylib
 UrbanTree: CMakeFiles/UrbanTree.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/dobromiriliev/Documents/GitHub/UrbanTree/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable UrbanTree"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/UrbanTree.dir/link.txt --verbose=$(VERBOSE)

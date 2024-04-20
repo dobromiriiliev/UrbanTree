@@ -581,3 +581,78 @@ events:
       LTO support using: LLVM version 14.0.3, (clang-1403.0.22.14.1) (static support for 29, runtime is 29)
       TAPI support using: Apple TAPI version 14.0.3 (tapi-1403.0.5.1)
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/Cellar/cmake/3.29.2/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/opt/homebrew/Cellar/cmake/3.29.2/share/cmake/Modules/CheckCSourceCompiles.cmake:52 (cmake_check_source_compiles)"
+      - "/opt/homebrew/Cellar/cmake/3.29.2/share/cmake/Modules/FindThreads.cmake:97 (CHECK_C_SOURCE_COMPILES)"
+      - "/opt/homebrew/Cellar/cmake/3.29.2/share/cmake/Modules/FindThreads.cmake:163 (_threads_check_libc)"
+      - "/opt/homebrew/Cellar/cmake/3.29.2/share/cmake/Modules/FindProtobuf.cmake:541 (find_package)"
+      - "CMakeLists.txt:15 (find_package)"
+    directories:
+      source: "/Users/dobromiriliev/Documents/GitHub/UrbanTree/build/CMakeFiles/CMakeScratch/TryCompile-BGMmjG"
+      binary: "/Users/dobromiriliev/Documents/GitHub/UrbanTree/build/CMakeFiles/CMakeScratch/TryCompile-BGMmjG"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: "13.2"
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk"
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/dobromiriliev/Documents/GitHub/UrbanTree/build/CMakeFiles/CMakeScratch/TryCompile-BGMmjG'
+        
+        Run Build Command(s): /opt/homebrew/Cellar/cmake/3.29.2/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_4dbea/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_4dbea.dir/build.make CMakeFiles/cmTC_4dbea.dir/build
+        Building C object CMakeFiles/cmTC_4dbea.dir/src.c.o
+        /opt/homebrew/bin/aarch64-apple-darwin22-gcc-13 -DCMAKE_HAVE_LIBC_PTHREAD  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk -mmacosx-version-min=13.2 -o CMakeFiles/cmTC_4dbea.dir/src.c.o -c /Users/dobromiriliev/Documents/GitHub/UrbanTree/build/CMakeFiles/CMakeScratch/TryCompile-BGMmjG/src.c
+        Linking C executable cmTC_4dbea
+        /opt/homebrew/Cellar/cmake/3.29.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4dbea.dir/link.txt --verbose=1
+        /opt/homebrew/bin/aarch64-apple-darwin22-gcc-13  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk -mmacosx-version-min=13.2 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_4dbea.dir/src.c.o -o cmTC_4dbea
+        
+      exitCode: 0
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/Cellar/cmake/3.29.2/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/opt/homebrew/Cellar/cmake/3.29.2/share/cmake/Modules/CheckCSourceCompiles.cmake:52 (cmake_check_source_compiles)"
+      - "/opt/homebrew/Cellar/cmake/3.29.2/share/cmake/Modules/FindThreads.cmake:97 (CHECK_C_SOURCE_COMPILES)"
+      - "/opt/homebrew/Cellar/cmake/3.29.2/share/cmake/Modules/FindThreads.cmake:163 (_threads_check_libc)"
+      - "/opt/homebrew/Cellar/cmake/3.29.2/share/cmake/Modules/FindProtobuf.cmake:541 (find_package)"
+      - "CMakeLists.txt:15 (find_package)"
+    directories:
+      source: "/Users/dobromiriliev/Documents/GitHub/UrbanTree/build/CMakeFiles/CMakeScratch/TryCompile-4v4scZ"
+      binary: "/Users/dobromiriliev/Documents/GitHub/UrbanTree/build/CMakeFiles/CMakeScratch/TryCompile-4v4scZ"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: "13.2"
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk"
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/dobromiriliev/Documents/GitHub/UrbanTree/build/CMakeFiles/CMakeScratch/TryCompile-4v4scZ'
+        
+        Run Build Command(s): /opt/homebrew/Cellar/cmake/3.29.2/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_e032e/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_e032e.dir/build.make CMakeFiles/cmTC_e032e.dir/build
+        Building C object CMakeFiles/cmTC_e032e.dir/src.c.o
+        /opt/homebrew/bin/aarch64-apple-darwin22-gcc-13 -DCMAKE_HAVE_LIBC_PTHREAD  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk -mmacosx-version-min=13.2 -o CMakeFiles/cmTC_e032e.dir/src.c.o -c /Users/dobromiriliev/Documents/GitHub/UrbanTree/build/CMakeFiles/CMakeScratch/TryCompile-4v4scZ/src.c
+        Linking C executable cmTC_e032e
+        /opt/homebrew/Cellar/cmake/3.29.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e032e.dir/link.txt --verbose=1
+        /opt/homebrew/bin/aarch64-apple-darwin22-gcc-13  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk -mmacosx-version-min=13.2 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_e032e.dir/src.c.o -o cmTC_e032e
+        
+      exitCode: 0
+...
