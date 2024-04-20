@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+      {
+          "name": "Debug",
+          "type": "cppdbg",
+          "request": "launch",
+          "program": "${workspaceFolder}/bin/main",
+          "args": [],
+          "stopAtEntry": false,
+          "cwd": "${workspaceFolder}",
+          "environment": [],
+          "externalConsole": false,
+          "MIMode": "lldb",
+          "preLaunchTask": "Build C++ Project",
+          "miDebuggerPath": "/usr/bin/lldb"
+      }
+  ]
+}
