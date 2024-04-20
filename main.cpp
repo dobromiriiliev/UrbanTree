@@ -5,19 +5,25 @@
 #include <unordered_map>
 #include <string>
 #include <cmath>
+#include <limits>
 #include <osmium/io/any_input.hpp>
 #include <osmium/handler.hpp>
 #include <osmium/visitor.hpp>
-#include <stddef.h>
-#include <geos_c.h>
+#include <geos/geom/Coordinate.h>
+#include <geos/geom/Geometry.h>
+#include <geos/geom/GeometryFactory.h>
+#include <geos/geom/Point.h>
+#include <curl/curl.h>
+#include <nlohmann/json.hpp>
 
+using json = nlohmann::json;
 using namespace std;
 using namespace osmium;
 using namespace osmium::handler;
 
 struct MyAppNode {
     int id;
-    double lat, lon; // Latitude and Longitude
+    double lat, lon;
 };
 
 struct Edge {
@@ -33,14 +39,9 @@ public:
     Graph graph;
     map<int, MyAppNode> nodes;
     int node_count = 0;
+    geos::geom::GeometryFactory factory;
 
-    RoadHandler() {
-        geosContext = initGEOS_r();
-    }
-
-    ~RoadHandler() {
-        finishGEOS_r(geosContext);
-    }
+    RoadHandler() : factory(geos::geom::GeometryFactory::create()) {}
 
     void node(const osmium::Node& node) {
         node_locations[node.id()] = node.location();
@@ -67,24 +68,12 @@ public:
         }
     }
 
-    GEOSContextHandle_t geosContext;
-
-    GEOSGeom createPoint(double lat, double lon) {
-        GEOSCoordSequence* seq = GEOSCoordSeq_create_r(geosContext, 1, 2);
-        GEOSCoordSeq_setX_r(geosContext, seq, 0, lon);
-        GEOSCoordSeq_setY_r(geosContext, seq, 0, lat);
-        GEOSGeom point = GEOSGeom_createPoint_r(geosContext, seq);  // The GEOSGeom owns the sequence
-        return point;
-    }
-
     double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        GEOSGeom p1 = createPoint(lat1, lon1);
-        GEOSGeom p2 = createPoint(lat2, lon2);
-        double distance;
-        GEOSDistance_r(geosContext, p1, p2, &distance);
-        GEOSGeom_destroy_r(geosContext, p1);
-        GEOSGeom_destroy_r(geosContext, p2);
-        return distance;
+        geos::geom::Coordinate c1(lon1, lat1);
+        geos::geom::Coordinate c2(lon2, lat2);
+        auto p1 = factory->createPoint(c1);
+        auto p2 = factory->createPoint(c2);
+        return p1->distance(p2.get());
     }
 };
 
@@ -121,30 +110,80 @@ vector<int> a_star_search(const Graph& graph, const map<int, MyAppNode>& nodes, 
     return {}; // Return empty path if no path is found
 }
 
-void read_osm_data(const string& filename) {
+// Function for performing HTTP GET requests using CURL
+static size_t WriteCallback(void *contents, size_t size, size_t nmemb, string *userp) {
+    userp->append((char*)contents, size * nmemb);
+    return size * nmemb;
+}
+
+// Function to geocode an address using an external API
+std::pair<double, double> geocodeAddress(const std::string& address) {
+    CURL *curl;
+    CURLcode res;
+    string readBuffer;
+    curl = curl_easy_init();
+    string api_url = "https://api.example.com/geocode/json?address=" + curl_easy_escape(curl, address.c_str(), address.length()) + "&key=YOUR_API_KEY";
+
+    if(curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, api_url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+
+        // Parse the JSON response
+        json response = json::parse(readBuffer);
+        double lat = response["results"][0]["geometry"]["location"]["lat"];
+        double lon = response["results"][0]["geometry"]["location"]["lng"];
+        return {lat, lon}; // Return parsed latitude and longitude
+    }
+
+    return {0.0, 0.0}; // Return default if CURL fails or no data
+}
+
+int findClosestNode(double lat, double lon, const map<int, MyAppNode>& nodes) {
+    double min_distance = numeric_limits<double>::max();
+    int closest_node_id = -1;
+
+    for (const auto& [node_id, node] : nodes) {
+        double distance = hypot(node.lat - lat, node.lon - lon);
+        if (distance < min_distance) {
+            min_distance = distance;
+            closest_node_id = node_id;
+        }
+    }
+    return closest_node_id;
+}
+
+void read_osm_data(const string& filename, RoadHandler& handler) {
     io::Reader reader(filename);
-    RoadHandler handler;
-    osmium::apply(reader, handler);
+    apply(reader, handler);
     reader.close();
 }
 
 int main() {
     string osm_filename = "map.osm"; // Specify your OSM data file
-    double start_lat, start_lon, end_lat, end_lon;
-    cout << "Enter start latitude: ";
-    cin >> start_lat;
-    cout << "Enter start longitude: ";
-    cin >> start_lon;
-    cout << "Enter end latitude: ";
-    cin >> end_lat;
-    cout << "Enter end longitude: ";
-    cin >> end_lon;
+    string start_address, end_address;
 
-    int start_node_id = 0;  // Example, map this from real coordinates
-    int goal_node_id = 10;  // Example, map this from real coordinates
+    cout << "Enter start address: ";
+    getline(cin, start_address);
+    cout << "Enter end address: ";
+    getline(cin, end_address);
 
-    read_osm_data(osm_filename);
+    auto [start_lat, start_lon] = geocodeAddress(start_address);
+    auto [end_lat, end_lon] = geocodeAddress(end_address);
+
     RoadHandler handler;
+    read_osm_data(osm_filename, handler);
+
+    int start_node_id = findClosestNode(start_lat, start_lon, handler.nodes);
+    int goal_node_id = findClosestNode(end_lat, end_lon, handler.nodes);
+
+    if (start_node_id == -1 || goal_node_id == -1) {
+        cout << "Error: Address not found on map." << endl;
+        return 1;
+    }
+
     auto path = a_star_search(handler.graph, handler.nodes, start_node_id, goal_node_id);
     for (int node_id : path) {
         cout << "Node ID: " << node_id << " - Lat: " << handler.nodes[node_id].lat << ", Lon: " << handler.nodes[node_id].lon << endl;
