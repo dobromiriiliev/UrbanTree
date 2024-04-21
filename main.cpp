@@ -167,7 +167,7 @@ void read_osm_data(const string& filename, RoadHandler& handler) {
 }
 
 int main() {
-    string osm_filename = "map.osm"; // Specify your OSM data file
+    string osm_filename = "/Users/dobromiriliev/Documents/GitHub/UrbanTree/us-latest.osm.pbf";
     string start_address, end_address;
 
     cout << "Enter start address: ";
