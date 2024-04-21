@@ -1,128 +1,84 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-#include <geos_c.h>
 #include <string.h>
-
-#define MAX_NODES 10
-
-typedef struct {
-    int id;
-    double lat, lon;
-} Node;
+#include <curl/curl.h>
+#include <cjson/cJSON.h>
 
 typedef struct {
-    int from;
-    int to;
-    double cost;
-} Edge;
+    char* data;
+    size_t length;
+} Buffer;
 
-Node nodes[MAX_NODES];
-int node_count = 0;
+size_t write_response(void* ptr, size_t size, size_t nmemb, void* stream) {
+    size_t real_size = size * nmemb;
+    Buffer* buffer = (Buffer*)stream;
 
-Edge edges[100];
-int edge_count = 0;
+    char* ptr_new = realloc(buffer->data, buffer->length + real_size + 1);
+    if (ptr_new == NULL) return 0;  // Out of memory!
 
-// Initialize GEOS
-void init_geos() {
-    initGEOS(NULL, NULL);
+    buffer->data = ptr_new;
+    memcpy(&(buffer->data[buffer->length]), ptr, real_size);
+    buffer->length += real_size;
+    buffer->data[buffer->length] = 0;
+
+    return real_size;
 }
 
-// Function to calculate the Euclidean distance between two nodes
-double calculate_distance(double lat1, double lon1, double lat2, double lon2) {
-    GEOSCoordSequence* seq1 = GEOSCoordSeq_create(1, 2);
-    GEOSCoordSeq_setX(seq1, 0, lon1);
-    GEOSCoordSeq_setY(seq1, 0, lat1);
+void geocode_address(const char* address, const char* api_key) {
+    CURL* curl;
+    CURLcode res;
+    Buffer buffer;
 
-    GEOSCoordSequence* seq2 = GEOSCoordSeq_create(1, 2);
-    GEOSCoordSeq_setX(seq2, 0, lon2);
-    GEOSCoordSeq_setY(seq2, 0, lat2);
+    buffer.data = malloc(1);  // Will be grown as needed by realloc
+    buffer.length = 0;        // No data at this point
 
-    GEOSGeometry* pt1 = GEOSGeom_createPoint(seq1);
-    GEOSGeometry* pt2 = GEOSGeom_createPoint(seq2);
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
 
-    double distance;
-    GEOSDistance(pt1, pt2, &distance);
+    if(curl) {
+        char* url_encoded_address = curl_easy_escape(curl, address, 0);
+        if(url_encoded_address) {
+            char url[512];
+            sprintf(url, "https://maps.googleapis.com/maps/api/geocode/json?address=%s&key=%s", url_encoded_address, api_key);
+            curl_easy_setopt(curl, CURLOPT_URL, url);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_response);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&buffer);
 
-    GEOSGeom_destroy(pt1);
-    GEOSGeom_destroy(pt2);
-    GEOSCoordSeq_destroy(seq1);
-    GEOSCoordSeq_destroy(seq2);
+            res = curl_easy_perform(curl);
+            if(res != CURLE_OK) {
+                fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+            } else {
+                printf("Response: %s\n", buffer.data);
+                cJSON* root = cJSON_Parse(buffer.data);
+                cJSON* results = cJSON_GetObjectItem(root, "results");
+                cJSON* first_result = cJSON_GetArrayItem(results, 0);
+                cJSON* geometry = cJSON_GetObjectItem(first_result, "geometry");
+                cJSON* location = cJSON_GetObjectItem(geometry, "location");
+                cJSON* lat = cJSON_GetObjectItem(location, "lat");
+                cJSON* lng = cJSON_GetObjectItem(location, "lng");
 
-    return distance;
-}
+                printf("Latitude: %f\n", lat->valuedouble);
+                printf("Longitude: %f\n", lng->valuedouble);
 
-// Heuristic: straight-line distance from a to b
-double heuristic(int a, int b) {
-    return calculate_distance(nodes[a].lat, nodes[a].lon, nodes[b].lat, nodes[b].lon);
-}
+                cJSON_Delete(root);
+            }
 
-// A* algorithm to find the shortest path
-void a_star(int start, int goal) {
-    double g_score[MAX_NODES]; // Cost from start to node
-    double f_score[MAX_NODES]; // Estimated cost from start to goal through node
-    int from_node[MAX_NODES];  // Tracks path
-    int open_set[MAX_NODES];   // Nodes to be evaluated
-    int open_set_count = 0;
-
-    for (int i = 0; i < MAX_NODES; i++) {
-        g_score[i] = INFINITY;
-        f_score[i] = INFINITY;
-        from_node[i] = -1;
+            curl_free(url_encoded_address);
+        }
+        curl_easy_cleanup(curl);
     }
 
-    g_score[start] = 0;
-    f_score[start] = heuristic(start, goal);
-
-    open_set[open_set_count++] = start;
-
-    while (open_set_count > 0) {
-        int current = open_set[0]; // The node in openSet having the lowest f_score[] value
-        if (current == goal) {
-            // Reconstruct path
-            printf("Path: ");
-            while (current != start) {
-                printf("%d <- ", current);
-                current = from_node[current];
-            }
-            printf("%d\n", start);
-            return;
-        }
-
-        // Remove current from open set
-        memmove(&open_set[0], &open_set[1], sizeof(int) * (--open_set_count));
-
-        for (int i = 0; i < edge_count; i++) {
-            if (edges[i].from == current) {
-                int neighbor = edges[i].to;
-                double tentative_g_score = g_score[current] + edges[i].cost;
-                if (tentative_g_score < g_score[neighbor]) {
-                    from_node[neighbor] = current;
-                    g_score[neighbor] = tentative_g_score;
-                    f_score[neighbor] = g_score[neighbor] + heuristic(neighbor, goal);
-                    if (open_set_count == 0 || neighbor != open_set[open_set_count-1]) {
-                        open_set[open_set_count++] = neighbor;
-                    }
-                }
-            }
-        }
-    }
+    curl_global_cleanup();
+    free(buffer.data);
 }
 
-int main() {
-    init_geos();
-    // Example nodes (Add real coordinates)
-    nodes[node_count++] = (Node){0, 37.7749, -122.4194}; // Node 0: San Francisco
-    nodes[node_count++] = (Node){1, 34.0522, -118.2437}; // Node 1: Los Angeles
-    nodes[node_count++] = (Node){2, 36.1699, -115.1398}; // Node 2: Las Vegas
+int main(int argc, char** argv) {
+    if(argc != 3) {
+        fprintf(stderr, "Usage: %s <address> <API key>\n", argv[0]);
+        return 1;
+    }
 
-    // Example edges (Add real costs based on distance)
-    edges[edge_count++] = (Edge){0, 1, calculate_distance(nodes[0].lat, nodes[0].lon, nodes[1].lat, nodes[1].lon)};
-    edges[edge_count++] = (Edge){0, 2, calculate_distance(nodes[0].lat, nodes[0].lon, nodes[2].lat, nodes[2].lon)};
-    edges[edge_count++] = (Edge){1, 2, calculate_distance(nodes[1].lat, nodes[1].lon, nodes[2].lat, nodes[2].lon)};
-
-    // Perform A* search from San Francisco to Las Vegas
-    a_star(0, 2);
+    geocode_address(argv[1], argv[2]);
 
     return 0;
 }

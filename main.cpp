@@ -125,7 +125,7 @@ std::pair<double, double> geocodeAddress(const std::string& address) {
     if (curl) {
         char *escapedAddress = curl_easy_escape(curl, address.c_str(), address.length());
         if (escapedAddress) {
-            string api_url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + string(escapedAddress) + "&key=YOUR_API_KEY";
+            string api_url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + string(escapedAddress) + "&key=AIzaSyDJx_mZW11ZsmGxI71uPS31mG76r8OESoo";
             curl_free(escapedAddress);
 
             curl_easy_setopt(curl, CURLOPT_URL, api_url.c_str());
@@ -146,7 +146,7 @@ std::pair<double, double> geocodeAddress(const std::string& address) {
     return {0.0, 0.0}; // Return default if CURL fails or no data
 }
 
-int findClosestNode(double lat, double lon, const map<int, MyAppNode>& nodes) {
+int findClosestNode(double lat, double lon, map<int, MyAppNode>& nodes) {
     double min_distance = numeric_limits<double>::max();
     int closest_node_id = -1;
 

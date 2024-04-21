@@ -1,33 +1,33 @@
 {
   "configurations": [
-      {
-          "name": "macos-clang-arm64",
-          "includePath": [
-              "/Users/dobromiriliev/Documents/GitHub/UrbanTree/**",
-              "/usr/local/include",  // For libraries installed by Homebrew on Intel Macs
-              "/opt/homebrew/include",  // For libraries installed by Homebrew on Apple Silicon
-              "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include", // Standard SDK includes
-              "/Users/dobromiriliev/Documents/GitHub/UrbanTree/libosmium/include", // Specific include for osmium
-              "/Users/dobromiriliev/Documents/GitHub/UrbanTree/geos/include", // Specific include for GEOS
-              "/Users/dobromiriliev/Documents/GitHub/UrbanTree/protozero/include" // Specific include for protozero
-          ],
-          "defines": [],
-          "macFrameworkPath": [
-              "/System/Library/Frameworks",
-              "/Library/Frameworks"
-          ],
-          "compilerPath": "/usr/bin/clang",
-          "intelliSenseMode": "macos-clang-arm64",
-          "cppStandard": "c++17",
-          "browse": {
-              "path": [
-                  "${workspaceFolder}/**",
-                  "/usr/local/include",
-                  "/opt/homebrew/include"
-              ],
-              "limitSymbolsToIncludedHeaders": true
-          }
+    {
+      "name": "macos-clang-arm64",
+      "includePath": [
+        "/Users/dobromiriliev/Documents/GitHub/UrbanTree/**",
+        "/usr/local/include", // For libraries installed by Homebrew on Intel Macs
+        "/opt/homebrew/include", // For libraries installed by Homebrew on Apple Silicon
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include", // Standard SDK includes
+        "/Users/dobromiriliev/Documents/GitHub/UrbanTree/libosmium/include", // Specific include for libosmium
+        "/Users/dobromiriliev/Documents/GitHub/UrbanTree/geos/include", // Corrected specific include for GEOS
+        "/Users/dobromiriliev/Documents/GitHub/UrbanTree/protozero/include" // Specific include for protozero
+      ],
+      "defines": [],
+      "macFrameworkPath": [
+        "/System/Library/Frameworks",
+        "/Library/Frameworks"
+      ],
+      "compilerPath": "/usr/bin/clang",
+      "intelliSenseMode": "macos-clang-arm64",
+      "cppStandard": "c++17",
+      "browse": {
+        "path": [
+          "${workspaceFolder}/**",
+          "/usr/local/include",
+          "/opt/homebrew/include"
+        ],
+        "limitSymbolsToIncludedHeaders": true
       }
+    }
   ],
   "version": 4
 }
